@@ -16,7 +16,7 @@
 
 #include "main.h"
 
-static HT_Peripheral peripheral_select = I2C_EX;
+static HT_Peripheral peripheral_select = GPIO_EX;
 
 char buff_size[513];
 
