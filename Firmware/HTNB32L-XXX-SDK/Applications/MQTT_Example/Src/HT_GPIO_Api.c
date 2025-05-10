@@ -59,10 +59,11 @@ static void HT_GPIO_IRQnCallback(void) {
     }
 }
 
-void HT_GPIO_WritePin(uint16_t pin, uint32_t instance, uint16_t value) {
+/*void HT_GPIO_WritePin(uint16_t pin, uint32_t instance, uint16_t value) {
     // Write the value in the GPIO pin
     GPIO_PinWrite(instance, 1 << pin, (value ? 1 << pin : 0)); 
 }
+*/
 
 void HT_GPIO_ButtonInit(void) {
     pad_config_t padConfig;

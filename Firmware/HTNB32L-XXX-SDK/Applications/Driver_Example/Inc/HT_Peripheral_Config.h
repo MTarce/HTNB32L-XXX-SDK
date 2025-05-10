@@ -179,7 +179,7 @@ ________________________________________________________________________________
 
 // UART2 (Universal asynchronous receiver transmitter) [Driver_USART2]
 // Configuration settings for Driver_USART2 in component ::Drivers:USART
-#define RTE_UART2                       0
+#define RTE_UART2                       1
 #define RTE_UART2_CTS_PIN_EN            0
 #define RTE_UART2_RTS_PIN_EN            0
 

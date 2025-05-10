@@ -2,7 +2,7 @@
     "makefile.extensionOutputFolder": "./.vscode",
     "cortex-debug.variableUseNaturalFormat": true,
     "cortex-debug.gdbPath": "C:/gcc_arm/bin/arm-none-eabi-gdb",
-    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "*.inc": "bitbake",
         "*.rmd": "markdown",
@@ -37,7 +37,10 @@
         "ht_uart_api.h": "c",
         "ht_timer_demo.h": "c",
         "ht_usart_unilog.h": "c",
-        "*.conf": "bitbake"
+        "*.conf": "bitbake",
+        "ht_gpio_demo.h": "c",
+        "ic_qcx212.h": "c",
+        "ht_ic_qcx212.h": "c"
     },
     "python.autoComplete.extraPaths": [
         "${workspaceFolder}/sources/poky/bitbake/lib",

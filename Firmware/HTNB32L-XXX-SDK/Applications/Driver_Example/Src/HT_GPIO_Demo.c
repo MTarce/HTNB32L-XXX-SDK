@@ -110,7 +110,7 @@ void HT_GPIO_App(void) {
   while(1) {
     int estado_push = HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN);
 
-      if (estado_push ==0)
+      if (estado_push ==1)
         HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_ON);
       else
         HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_OFF);
