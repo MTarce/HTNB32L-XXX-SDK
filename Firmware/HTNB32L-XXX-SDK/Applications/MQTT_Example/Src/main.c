@@ -23,21 +23,25 @@
 #include "ic_qcx212.h"
 #include "HT_ic_qcx212.h"
 
+/*===============================
+Definindo Fila
+=================================*/
+#include "queue.h"
 
-//GPIO10 - BUTTON
-#define BUTTON_INSTANCE          0                  /**</ Button pin instance. */
-#define BUTTON_PIN               10                 /**</ Button pin number. */
-#define BUTTON_PAD_ID            25                 /**</ Button Pad ID. */
-#define BUTTON_PAD_ALT_FUNC      PAD_MuxAlt0        /**</ Button pin alternate function. */
+// GPIO10 - BUTTON
+#define BUTTON_INSTANCE 0               /**</ Button pin instance. */
+#define BUTTON_PIN 10                   /**</ Button pin number. */
+#define BUTTON_PAD_ID 25                /**</ Button Pad ID. */
+#define BUTTON_PAD_ALT_FUNC PAD_MuxAlt0 /**</ Button pin alternate function. */
 
-//GPIO3 - LED
-#define LED_INSTANCE             0                  /**</ LED pin instance. */
-#define LED_GPIO_PIN             3                  /**</ LED pin number. */
-#define LED_PAD_ID               14                 /**</ LED Pad ID. */
-#define LED_PAD_ALT_FUNC         PAD_MuxAlt0        /**</ LED pin alternate function. */
+// GPIO3 - LED
+#define LED_INSTANCE 0               /**</ LED pin instance. */
+#define LED_GPIO_PIN 3               /**</ LED pin number. */
+#define LED_PAD_ID 14                /**</ LED Pad ID. */
+#define LED_PAD_ALT_FUNC PAD_MuxAlt0 /**</ LED pin alternate function. */
 
-#define LED_ON  1                                   /**</ LED on. */
-#define LED_OFF 0                                   /**</ LED off. */
+#define LED_ON 1  /**</ LED on. */
+#define LED_OFF 0 /**</ LED off. */
 
 /*===============================================
 PROTOTIPOS DAS FUNÇÕESS
@@ -45,8 +49,6 @@ PROTOTIPOS DAS FUNÇÕESS
 static void HT_GPIO_Callback(void);
 static void HT_GPIO_InitLed(void);
 static void HT_GPIO_InitButton(void);
-
-static volatile uint8_t estado_push;
 
 static volatile uint8_t gpio_exti = 0;
 
@@ -109,17 +111,7 @@ static uint32_t uart_cntrl = (ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_
 
 extern USART_HandleTypeDef huart1;
 
-void Task1(void *pvParameters)
-{
-  while (1)
-  {
-    printf("Lendo o led...\n");
-    estado_push = HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN);
-
-    vTaskDelay(pdMS_TO_TICKS(500));
-  }
-}
-
+/*
 void Task2(void *pvParameters)
 {
   while (1)
@@ -133,24 +125,58 @@ void Task2(void *pvParameters)
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay de 1000ms
   }
 }
-
-/**
-  \fn          int main_entry(void)
-  \brief       main entry function.
-  \return
 */
+
+/*==============================================
+Incluindo FILA
+================================================*/
+QueueHandle_t xfila;
+
+void vTaskLeituraBtn(void *pv)
+{
+  bool estado_push;
+  while (1)
+  {
+    estado_push = HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN);
+    xQueueSend(xfila, &estado_push, portMAX_DELAY);
+    vTaskDelay(pdMS_TO_TICKS(500));
+  }
+}
+
+void vTaskestadoLed(void *pv)
+{
+  bool recebido;
+  while (1)
+  {
+    xQueueReceive(xfila, &recebido, portMAX_DELAY);
+    if (recebido == 1)
+      HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_ON);
+    else
+      HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_OFF);
+  }
+}
+
 void main_entry(void)
 {
 
   HT_GPIO_InitButton();
   HT_GPIO_InitLed();
+
   slpManNormalIOVoltSet(IOVOLT_3_30V);
 
   HAL_USART_InitPrint(&huart1, GPR_UART1ClkSel_26M, uart_cntrl, 115200);
   printf("Exemplo FreeRTOS\n");
 
-  xTaskCreate(Task1, "Blink", 128, NULL, 2, NULL);
-  xTaskCreate(Task2, "Print", 128, NULL, 1, NULL);
+  xfila = xQueueCreate(10, sizeof(bool));
+  if (xfila == NULL)
+  {
+    printf("Erro ao criar a fila\n");
+    while (1)
+      ;
+  }
+
+  xTaskCreate(vTaskLeituraBtn, "btn", 128, NULL, 2, NULL);
+  xTaskCreate(vTaskestadoLed, "led", 128, NULL, 1, NULL);
 
   vTaskStartScheduler();
 
