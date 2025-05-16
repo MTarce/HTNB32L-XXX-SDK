@@ -15,6 +15,7 @@
 
 #include "main.h"
 
+
 /* Function prototypes  ------------------------------------------------------------------*/
 
 /*!******************************************************************
@@ -234,11 +235,12 @@ static void HT_UserAppTask(void *arg) {
 
     slpstate = slpManGetLastSlpState();
     wkpSrc = slpManGetWakeupSrc();
+    //Modificado
+    printf("Wakeup Src: %d\n", wkpSrc);
 
     if((slpstate == SLP_SLP2_STATE) || (slpstate == SLP_HIB_STATE)) {    // wakeup from sleep 
 		HT_FsRead();
 
-        printf("Wakeup Src: %d\n", wkpSrc);
         printf("Wakeup From state = %u\n", slpstate);
         printf("uint32_t abc = %d\n", abc);
         printf("File Read: 0x%08X\n", fileContent);
@@ -342,6 +344,8 @@ void main_entry(void) {
     {
         osKernelStart();
     }
+
+
     while(1);
 
 }
