@@ -14,9 +14,20 @@
  */
 
 #include "main.h"
+#include "htnb32lxxx_hal_usart.h"
+
+static uint32_t uart_cntrl = (ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_8 | ARM_USART_PARITY_NONE |
+                                ARM_USART_STOP_BITS_1 | ARM_USART_FLOW_CONTROL_NONE);
+
+
+extern USART_HandleTypeDef huart1;                                
 
 void main_entry (void) {
     HT_BSP_Init();
+
+     HAL_USART_InitPrint(&huart1, GPR_UART1ClkSel_26M, uart_cntrl, 115200);
+     printf("Mod: %d\n",slpManGetWakeupSrc());
+     putchar('\n');
 	
     setvbuf(stdout,NULL,_IONBF,0);
 	
