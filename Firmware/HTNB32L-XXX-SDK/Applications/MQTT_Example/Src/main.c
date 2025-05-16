@@ -1,18 +1,7 @@
-/**
- *
- * Copyright (c) 2023 HT Micron Semicondutores S.A.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 
+/*===========================================
+ATIVIDADE 04 - UTILIZANDO SEMAFORO
+=============================================*/
 #include "main.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -24,9 +13,9 @@
 #include "HT_ic_qcx212.h"
 
 /*===============================
-Definindo Fila
+INCLUINDO SEMAFORO
 =================================*/
-#include "queue.h"
+#include "semphr.h"
 
 // GPIO10 - BUTTON
 #define BUTTON_INSTANCE 0               /**</ Button pin instance. */
@@ -128,9 +117,9 @@ void Task2(void *pvParameters)
 */
 
 /*==============================================
-Incluindo FILA
+DECLARANDO UM OBJETO DO TIPO SEMAFORO
 ================================================*/
-QueueHandle_t xfila;
+SemaphoreHandle_t xSemaforo;
 
 void vTaskLeituraBtn(void *pv)
 {
@@ -138,20 +127,21 @@ void vTaskLeituraBtn(void *pv)
   while (1)
   {
     estado_push = HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN);
-    xQueueSend(xfila, &estado_push, portMAX_DELAY);
+    if(estado_push == 1)
+    {
+      xSemaphoreGive(xSemaforo);
+    }
     vTaskDelay(pdMS_TO_TICKS(500));
   }
 }
 
 void vTaskestadoLed(void *pv)
 {
-  bool recebido;
   while (1)
   {
-    xQueueReceive(xfila, &recebido, portMAX_DELAY);
-    if (recebido == 1)
+    xSemaphoreTake(xSemaforo, portMAX_DELAY);
       HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_ON);
-    else
+      vTaskDelay(pdMS_TO_TICKS(500));
       HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_OFF);
   }
 }
@@ -167,13 +157,8 @@ void main_entry(void)
   HAL_USART_InitPrint(&huart1, GPR_UART1ClkSel_26M, uart_cntrl, 115200);
   printf("Exemplo FreeRTOS\n");
 
-  xfila = xQueueCreate(10, sizeof(bool));
-  if (xfila == NULL)
-  {
-    printf("Erro ao criar a fila\n");
-    while (1)
-      ;
-  }
+
+  xSemaforo = xSemaphoreCreateBinary();
 
   xTaskCreate(vTaskLeituraBtn, "btn", 128, NULL, 2, NULL);
   xTaskCreate(vTaskestadoLed, "led", 128, NULL, 1, NULL);
