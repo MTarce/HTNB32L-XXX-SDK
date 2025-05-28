@@ -1,3 +1,4 @@
+
 /**
  *
  * Copyright (c) 2024 HT Micron Semicondutores S.A.
@@ -15,6 +16,7 @@
 
 #include "HT_USART_Demo.h"
 #include "htnb32lxxx_hal_usart.h"
+
 
 extern USART_HandleTypeDef huart1;
 extern USART_HandleTypeDef huart2;
@@ -49,7 +51,7 @@ void HT_USART_App(void) {
     HAL_USART_Initialize(HT_USART_Callback_2, &huart2);
     HAL_USART_PowerControl(ARM_POWER_FULL, &huart2);
     HAL_USART_Control(uart_cntrl, 115200, &huart2);
-    ht_printf("Comunicando dois kits\n");
+    ht_printf("HTNB32L-XXX USART Example\n");
     
     while(1) {
         HAL_USART_ReceivePolling(&huart1, &rx_buffer_usart_1, 1);
@@ -71,6 +73,7 @@ void HT_USART_App(void) {
                     if (rx_buffer_usart_2 != 0 )
                     {
                         ht_printf("%c",rx_buffer_usart_2);
+                        printf("....\n");
                         if(rx_buffer_usart_2 != '\r')
                             rx_buffer_usart_2 = 0;
                     } 
